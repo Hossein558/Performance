@@ -67,7 +67,7 @@
                                                     <div class="evaluator-cell">
                                                         <div class="avatar-wrapper">
                                                             <img src="/api/avatar/@row.EvaluatorPersonnelCode"
-                                                                 class="avatar-photo"
+                                                                 class="header-avatar-photo"
                                                                  alt="@row.EvaluatorName"
                                                                  onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';" />
                                                             <span class="avatar-chip avatar-fallback"
@@ -132,8 +132,7 @@
                                                    ShowSelectAll="true"
                                                    EnableSelectionOrder="false"
                                                    CssClass="subordinate-multiselect"
-                                                   Value="@selectedSubordinateIds"
-                                                   ValueChanged="@OnSubordinateFilterChanged">
+                                                   @bind-Value="SelectedSubordinateIds">
                                         <ItemTemplate>
                                             @{
                                                 var emp = (EmployeeDto)context;
@@ -141,7 +140,7 @@
                                             <div class="ms-item-row">
                                                 <div class="avatar-wrapper">
                                                     <img src="/api/avatar/@emp.PersonnelCode"
-                                                         class="avatar-photo"
+                                                         class="header-avatar-photo"
                                                          alt="@emp.FullName"
                                                          onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';" />
                                                     <span class="avatar-chip avatar-fallback"
@@ -162,7 +161,7 @@
                                         <div class="empty-state-icon">📋</div>
                                         <h3>بازخوردی یافت نشد</h3>
                                         <p>
-                                            @if (selectedSubordinateIds.Length == 0)
+                                            @if (SelectedSubordinateIds.Length == 0)
                                             {
                                                 <text>هنوز بازخوردی ثبت نشده است.</text>
                                             }
@@ -193,7 +192,7 @@
                                                     <div class="evaluator-cell">
                                                         <div class="avatar-wrapper">
                                                             <img src="/api/avatar/@row.TargetPersonnelCode"
-                                                                 class="avatar-photo"
+                                                                 class="header-avatar-photo"
                                                                  alt="@row.TargetName"
                                                                  onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';" />
                                                             <span class="avatar-chip avatar-fallback"
@@ -249,7 +248,17 @@
     private List<EvaluationDto> allGivenEvaluations      = new();
     private List<EvaluationDto> filteredGivenEvaluations = new();
     private List<EmployeeDto>   mySubordinates            = new();
-    private Guid[]              selectedSubordinateIds    = Array.Empty<Guid>();
+
+    private Guid[] _selectedSubordinateIds = Array.Empty<Guid>();
+    private Guid[] SelectedSubordinateIds
+    {
+        get => _selectedSubordinateIds;
+        set
+        {
+            _selectedSubordinateIds = value ?? Array.Empty<Guid>();
+            ApplySubordinateFilter();
+        }
+    }
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     protected override async Task OnInitializedAsync()
@@ -273,14 +282,12 @@
     }
 
     // ── Filter Logic ──────────────────────────────────────────────────────────
-    private void OnSubordinateFilterChanged(Guid[] selected)
+    private void ApplySubordinateFilter()
     {
-        selectedSubordinateIds = selected ?? Array.Empty<Guid>();
-
-        filteredGivenEvaluations = selectedSubordinateIds.Length == 0
+        filteredGivenEvaluations = _selectedSubordinateIds.Length == 0
             ? new List<EvaluationDto>(allGivenEvaluations)
             : allGivenEvaluations
-                .Where(e => selectedSubordinateIds.Contains(e.TargetEmployeeId))
+                .Where(e => _selectedSubordinateIds.Contains(e.TargetEmployeeId))
                 .ToList();
     }
 
