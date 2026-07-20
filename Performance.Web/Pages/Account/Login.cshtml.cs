@@ -122,4 +122,39 @@ public class LoginModel : PageModel
         var returnUrl = Request.Query["returnUrl"].FirstOrDefault();
         return LocalRedirect(string.IsNullOrEmpty(returnUrl) ? "/" : returnUrl);
     }
+
+    public async Task<IActionResult> OnPostDevLoginAsync()
+    {
+        var personnelCode = "110749";
+        var employee = await _employeeService.GetEmployeeByPersonnelCodeAsync(personnelCode);
+
+        if (employee == null)
+        {
+            ErrorMessage = "Dev User (110749) not found in DB.";
+            return Page();
+        }
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name,   "he110749"),
+            new Claim("EmployeeId",      employee.Id.ToString()),
+            new Claim("FullName",        $"{employee.FirstName} {employee.LastName}".Trim()),
+            new Claim("PersonnelCode",   employee.PersonnelCode)
+        };
+
+        var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal,
+            new AuthenticationProperties
+            {
+                IsPersistent = false,
+                ExpiresUtc   = DateTimeOffset.UtcNow.AddHours(8)
+            });
+
+        _logger.LogInformation("Dev Login successful for PersonnelCode: {PersonnelCode}", personnelCode);
+        return LocalRedirect("/");
+    }
 }
