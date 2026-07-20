@@ -9,9 +9,6 @@ namespace Performance.Web.Services;
 ///
 /// STRICT REQUIREMENT: Do NOT use System.DirectoryServices.
 /// Do NOT query thumbnailPhoto, jpegPhoto, or any other attributes — bind only.
-///
-/// The RuntimeLicense is loaded from IANJA.lic at startup via Program.cs and
-/// injected through IOptions&lt;LdapSettings&gt;.LicenseKey.
 /// </summary>
 public class LdapAuthService : ILdapAuthService
 {
@@ -34,16 +31,23 @@ public class LdapAuthService : ILdapAuthService
             var ldap = new LDAP();
             try
             {
-                // Apply the runtime license (content of IANJA.lic)
-                if (!string.IsNullOrWhiteSpace(_settings.LicenseKey))
-                    ldap.RuntimeLicense = _settings.LicenseKey;
+                // Hardcoded RTK license key (nsoftware IPWorks Auth 2024)
+                ldap.RuntimeLicense = "31414E4A4142474B4234584B4B4E44453154414630580000000000000000000000000000000000002A0000000000000000004A4E5833504131414443534E0000";
 
                 ldap.ServerName = _settings.ServerName;
                 ldap.ServerPort = _settings.Port;
                 ldap.Timeout = 30; // seconds — prevents hanging on unreachable server
 
-                // Direct bind: Active Directory accepts UPN format as the bind DN
-                ldap.DN = $"{username}@{_settings.Domain}";
+                // Strip any domain prefix so we always bind as sAMAccountName@domain.com.
+                // Accepts: he110749  /  he110749@crouseco.com  /  CROUSECO\he110749
+                var bareUsername = username;
+                if (bareUsername.Contains('@'))
+                    bareUsername = bareUsername.Split('@')[0];
+                else if (bareUsername.Contains('\\'))
+                    bareUsername = bareUsername.Split('\\')[1];
+
+                // UPN bind — the format Active Directory expects
+                ldap.DN = $"{bareUsername}@{_settings.Domain}";
                 ldap.Password = password;
 
                 // Attempt the bind — throws an exception if credentials are invalid

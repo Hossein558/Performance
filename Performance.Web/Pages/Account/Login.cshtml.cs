@@ -63,8 +63,16 @@ public class LoginModel : PageModel
         }
 
         // ── Step 2: Look up the employee record in the database ───────────────
-        // PersonnelCode is expected to match the AD sAMAccountName.
-        var employee = await _employeeService.GetEmployeeByPersonnelCodeAsync(Username);
+        // PersonnelCode stores the bare sAMAccountName (e.g. "he110749").
+        // Strip any domain prefix the user may have typed (he110749@crouseco.com
+        // or CROUSECO\he110749) so the DB lookup always uses the plain username.
+        var personnelCode = Username;
+        if (personnelCode.Contains('@'))
+            personnelCode = personnelCode.Split('@')[0];
+        else if (personnelCode.Contains('\\'))
+            personnelCode = personnelCode.Split('\\')[1];
+
+        var employee = await _employeeService.GetEmployeeByPersonnelCodeAsync(personnelCode);
 
         if (employee == null)
         {
