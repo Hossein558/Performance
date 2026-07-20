@@ -77,6 +77,11 @@ public class LoginModel : PageModel
         else if (personnelCode.Contains('\\'))
             personnelCode = personnelCode.Split('\\')[1];
 
+        if (personnelCode.StartsWith("he", StringComparison.OrdinalIgnoreCase))
+        {
+            personnelCode = personnelCode.Substring(2);
+        }
+
         var employee = await _employeeService.GetEmployeeByPersonnelCodeAsync(personnelCode);
 
         if (employee == null)

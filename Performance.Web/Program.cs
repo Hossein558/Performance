@@ -9,6 +9,16 @@ using Performance.Web.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// KESTREL CONFIGURATION
+// Fix HTTP 400 with Windows Auth: Allow large Kerberos tokens in headers
+// ═══════════════════════════════════════════════════════════════════════════════
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestHeadersTotalSize = 1048576; // 1MB
+    options.Limits.MaxRequestLineSize = 1048576;
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // LICENSE LOADING
 // Reads IANJA.lic relative to the executable directory.
 // This path resolves correctly on both Windows (dev) and Linux (production).
@@ -52,7 +62,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite     = SameSiteMode.Lax;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     })
-    .AddNegotiate();
+    .AddNegotiate(options => 
+    {
+        options.Events = new NegotiateEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                logger.LogError(context.Exception, "Negotiate authentication failed.");
+                return Task.CompletedTask;
+            }
+        };
+    });
 
 builder.Services.AddAuthorization();
 

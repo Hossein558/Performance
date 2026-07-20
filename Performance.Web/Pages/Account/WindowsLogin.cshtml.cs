@@ -40,6 +40,11 @@ public class WindowsLoginModel : PageModel
         // Extract username (e.g., CROUSECO\he110749 -> he110749)
         var username = winIdentity.Name.Split('\\').Last();
 
+        if (username.StartsWith("he", StringComparison.OrdinalIgnoreCase))
+        {
+            username = username.Substring(2);
+        }
+
         // Find in DB
         var employee = await _employeeService.GetEmployeeByPersonnelCodeAsync(username);
         if (employee == null)
