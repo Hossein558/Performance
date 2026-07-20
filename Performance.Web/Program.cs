@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
+using Syncfusion.Blazor;
 using Performance.Web.Components;
 using Performance.Web.Data;
 using Performance.Web.Repositories;
@@ -117,10 +118,23 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// SYNCFUSION BLAZOR
+// ═══════════════════════════════════════════════════════════════════════════════
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("@32392e302e303b32393bKq35AiUSRDJT5uIaFzRCrJWDo7gKUKH1Rwb6jH+WX4o=");
+builder.Services.AddSyncfusionBlazor();
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // HTTP PIPELINE
 // Order is critical: Auth → Authorization → Antiforgery → Endpoints
 // ═══════════════════════════════════════════════════════════════════════════════
 var app = builder.Build();
+
+var supportedCultures = new[] { "fa-IR" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+app.UseRequestLocalization(localizationOptions);
 
 if (!app.Environment.IsDevelopment())
 {

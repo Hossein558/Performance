@@ -40,22 +40,7 @@
                     }
 
                     <div class="form-row">
-                        <label class="form-label">
-                            تاریخ مشاهده <span class="required-mark">*</span>
-                        </label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <select class="form-input" @bind="bYear" style="width: auto;">
-                                @for (int i = 1400; i <= 1410; i++) { <option value="@i">@i</option> }
-                            </select>
-                            <span>/</span>
-                            <select class="form-input" @bind="bMonth" style="width: auto;">
-                                @for (int i = 1; i <= 12; i++) { <option value="@i">@i</option> }
-                            </select>
-                            <span>/</span>
-                            <select class="form-input" @bind="bDay" style="width: auto;">
-                                @for (int i = 1; i <= 31; i++) { <option value="@i">@i</option> }
-                            </select>
-                        </div>
+                        <SfDatePicker FloatLabelType="FloatLabelType.Auto" Placeholder="تاریخ مشاهده" TValue="DateTime?" @bind-Value="bDate"></SfDatePicker>
                     </div>
 
                     <div class="form-row">
@@ -86,22 +71,7 @@
                     }
 
                     <div class="form-row">
-                        <label class="form-label">
-                            تاریخ مشاهده <span class="required-mark">*</span>
-                        </label>
-                        <div style="display: flex; gap: 5px; align-items: center;">
-                            <select class="form-input" @bind="fYear" style="width: auto;">
-                                @for (int i = 1400; i <= 1410; i++) { <option value="@i">@i</option> }
-                            </select>
-                            <span>/</span>
-                            <select class="form-input" @bind="fMonth" style="width: auto;">
-                                @for (int i = 1; i <= 12; i++) { <option value="@i">@i</option> }
-                            </select>
-                            <span>/</span>
-                            <select class="form-input" @bind="fDay" style="width: auto;">
-                                @for (int i = 1; i <= 31; i++) { <option value="@i">@i</option> }
-                            </select>
-                        </div>
+                        <SfDatePicker FloatLabelType="FloatLabelType.Auto" Placeholder="تاریخ مشاهده" TValue="DateTime?" @bind-Value="fDate"></SfDatePicker>
                     </div>
 
                     <div class="form-row">
@@ -135,37 +105,19 @@
     private EvalType activeTab = EvalType.Behavioral;
 
     // ── Behavioral Tab State ───────────────────────────────────────────────────
-    private int bYear = 1403;
-    private int bMonth = 1;
-    private int bDay = 1;
+    private DateTime? bDate = DateTime.Today;
     private string   bText = string.Empty;
     private bool     bBusy;
     private string   bMsg  = string.Empty;
     private bool     bOk;
 
     // ── Functional Tab State ───────────────────────────────────────────────────
-    private int fYear = 1403;
-    private int fMonth = 1;
-    private int fDay = 1;
+    private DateTime? fDate = DateTime.Today;
     private string   fText = string.Empty;
     private bool     fBusy;
     private string   fMsg  = string.Empty;
     private bool     fOk;
 
-    // ── Lifecycle ──────────────────────────────────────────────────────────────
-    protected override void OnInitialized()
-    {
-        SetToCurrentPersianDate();
-    }
-
-    private void SetToCurrentPersianDate()
-    {
-        var pc = new System.Globalization.PersianCalendar();
-        var now = DateTime.Today;
-        bYear = fYear = pc.GetYear(now);
-        bMonth = fMonth = pc.GetMonth(now);
-        bDay = fDay = pc.GetDayOfMonth(now);
-    }
 
     // ── Submission Handlers ────────────────────────────────────────────────────
     private async Task SubmitBehavioral()
@@ -185,7 +137,7 @@
             TargetEmployeeId = TargetEmployee.Id,
             EvalType         = EvalType.Behavioral,
             FeedbackText     = bText.Trim(),
-            ObservationDate  = ParsePersianDate(bYear, bMonth, bDay)
+            ObservationDate  = bDate ?? DateTime.Today
         });
 
         bOk   = ok;
@@ -194,7 +146,7 @@
 
         if (ok)
         {
-            SetToCurrentPersianDate();
+            bDate = DateTime.Today;
             bText = string.Empty;
         }
 
@@ -218,7 +170,7 @@
             TargetEmployeeId = TargetEmployee.Id,
             EvalType         = EvalType.Functional,
             FeedbackText     = fText.Trim(),
-            ObservationDate  = ParsePersianDate(fYear, fMonth, fDay)
+            ObservationDate  = fDate ?? DateTime.Today
         });
 
         fOk   = ok;
@@ -227,21 +179,10 @@
 
         if (ok)
         {
-            SetToCurrentPersianDate();
+            fDate = DateTime.Today;
             fText = string.Empty;
         }
 
         fBusy = false;
-    }
-    
-    private DateTime ParsePersianDate(int y, int m, int d)
-    {
-        try
-        {
-            var pc = new System.Globalization.PersianCalendar();
-            return pc.ToDateTime(y, m, d, 0, 0, 0, 0);
-        }
-        catch { }
-        return DateTime.Today;
     }
 }
