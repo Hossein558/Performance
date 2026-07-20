@@ -1,0 +1,32 @@
+<div class="employee-card" @onclick="() => OnClick.InvokeAsync()" title="کلیک برای ارزیابی">
+
+    @*
+        PHOTO PLACEHOLDER
+        This <div class="card-avatar"> displays generated initials.
+        Replace the inner <span> with an <img> tag once photo retrieval is implemented.
+    *@
+    <div class="card-avatar">
+        <span>@Employee.Initials</span>
+    </div>
+
+    <div class="card-body">
+        <div class="card-name">@Employee.FullName</div>
+        <div class="card-code">
+            <span>🆔</span>
+            <span>@Employee.PersonnelCode</span>
+        </div>
+    </div>
+
+    <div class="card-action-hint">
+        <span>📝 ارزیابی</span>
+    </div>
+
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public EmployeeDto Employee { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+}

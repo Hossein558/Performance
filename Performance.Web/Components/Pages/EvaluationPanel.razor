@@ -1,0 +1,187 @@
+@inject IEvaluationService EvaluationService
+
+@if (Visible && TargetEmployee is not null)
+{
+    <div class="eval-overlay" @onclick="() => OnClose.InvokeAsync()">
+        <div class="eval-panel" @onclick:stopPropagation="true">
+
+            @* ── Header ───────────────────────────────────────────────────── *@
+            <div class="eval-panel-header">
+                <div class="eval-target-info">
+                    <span class="eval-target-name">@TargetEmployee.FullName</span>
+                    <span class="eval-target-code">کد پرسنلی: @TargetEmployee.PersonnelCode</span>
+                </div>
+                <button class="btn-close-panel"
+                        @onclick="() => OnClose.InvokeAsync()"
+                        title="بستن">✕</button>
+            </div>
+
+            @* ── Tab Buttons ──────────────────────────────────────────────── *@
+            <div class="eval-tabs">
+                <button class="tab-btn @(activeTab == EvalType.Behavioral ? "active" : "")"
+                        @onclick='() => activeTab = EvalType.Behavioral'>
+                    🤝 رفتاری (Behavioral)
+                </button>
+                <button class="tab-btn @(activeTab == EvalType.Functional ? "active" : "")"
+                        @onclick='() => activeTab = EvalType.Functional'>
+                    ⚙️ عملکردی (Functional)
+                </button>
+            </div>
+
+            @* ── Panel 1: Behavioral ──────────────────────────────────────── *@
+            @if (activeTab == EvalType.Behavioral)
+            {
+                <div class="tab-panel">
+                    @if (!string.IsNullOrEmpty(bMsg))
+                    {
+                        <div class="alert @(bOk ? "alert-success" : "alert-error")">
+                            @(bOk ? "✅" : "❌") @bMsg
+                        </div>
+                    }
+
+                    <div class="form-row">
+                        <label class="form-label">
+                            تاریخ مشاهده <span class="required-mark">*</span>
+                        </label>
+                        <input type="date" class="date-input"
+                               @bind="bDate" @bind:format="yyyy-MM-dd" />
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">
+                            متن بازخورد رفتاری <span class="required-mark">*</span>
+                        </label>
+                        <textarea class="text-area-input" rows="5"
+                                  placeholder="رفتار مشاهده‌شده را با جزئیات شرح دهید..."
+                                  @bind="bText"></textarea>
+                    </div>
+
+                    <button class="btn-submit" @onclick="SubmitBehavioral" disabled="@bBusy">
+                        @if (bBusy) { <span>در حال ارسال...</span> }
+                        else        { <span>💾 ثبت ارزیابی رفتاری</span> }
+                    </button>
+                </div>
+            }
+
+            @* ── Panel 2: Functional ──────────────────────────────────────── *@
+            @if (activeTab == EvalType.Functional)
+            {
+                <div class="tab-panel">
+                    @if (!string.IsNullOrEmpty(fMsg))
+                    {
+                        <div class="alert @(fOk ? "alert-success" : "alert-error")">
+                            @(fOk ? "✅" : "❌") @fMsg
+                        </div>
+                    }
+
+                    <div class="form-row">
+                        <label class="form-label">
+                            تاریخ مشاهده <span class="required-mark">*</span>
+                        </label>
+                        <input type="date" class="date-input"
+                               @bind="fDate" @bind:format="yyyy-MM-dd" />
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">
+                            متن بازخورد عملکردی <span class="required-mark">*</span>
+                        </label>
+                        <textarea class="text-area-input" rows="5"
+                                  placeholder="عملکرد مشاهده‌شده را با جزئیات شرح دهید..."
+                                  @bind="fText"></textarea>
+                    </div>
+
+                    <button class="btn-submit" @onclick="SubmitFunctional" disabled="@fBusy">
+                        @if (fBusy) { <span>در حال ارسال...</span> }
+                        else        { <span>💾 ثبت ارزیابی عملکردی</span> }
+                    </button>
+                </div>
+            }
+
+        </div>
+    </div>
+}
+
+@code {
+    // ── Parameters ─────────────────────────────────────────────────────────────
+    [Parameter, EditorRequired] public EmployeeDto TargetEmployee { get; set; } = default!;
+    [Parameter, EditorRequired] public Guid        EvaluatorId    { get; set; }
+    [Parameter]                 public bool        Visible        { get; set; }
+    [Parameter]                 public EventCallback OnClose      { get; set; }
+
+    // ── Tab State ──────────────────────────────────────────────────────────────
+    private EvalType activeTab = EvalType.Behavioral;
+
+    // ── Behavioral Tab State ───────────────────────────────────────────────────
+    private DateTime bDate = DateTime.Today;
+    private string   bText = string.Empty;
+    private bool     bBusy;
+    private string   bMsg  = string.Empty;
+    private bool     bOk;
+
+    // ── Functional Tab State ───────────────────────────────────────────────────
+    private DateTime fDate = DateTime.Today;
+    private string   fText = string.Empty;
+    private bool     fBusy;
+    private string   fMsg  = string.Empty;
+    private bool     fOk;
+
+    // ── Submission Handlers ────────────────────────────────────────────────────
+    private async Task SubmitBehavioral()
+    {
+        bMsg = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(bText))
+        {
+            bMsg = "لطفاً متن بازخورد رفتاری را وارد کنید.";
+            bOk  = false;
+            return;
+        }
+
+        bBusy  = true;
+        var ok = await EvaluationService.SubmitEvaluationAsync(EvaluatorId, new EvaluationRequest
+        {
+            TargetEmployeeId = TargetEmployee.Id,
+            EvalType         = EvalType.Behavioral,
+            FeedbackText     = bText.Trim(),
+            ObservationDate  = bDate
+        });
+
+        bOk   = ok;
+        bMsg  = ok ? "ارزیابی رفتاری با موفقیت ثبت شد ✔"
+                   : "خطا در ثبت ارزیابی. لطفاً دوباره تلاش کنید.";
+
+        if (ok) { bText = string.Empty; bDate = DateTime.Today; }
+
+        bBusy = false;
+    }
+
+    private async Task SubmitFunctional()
+    {
+        fMsg = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(fText))
+        {
+            fMsg = "لطفاً متن بازخورد عملکردی را وارد کنید.";
+            fOk  = false;
+            return;
+        }
+
+        fBusy  = true;
+        var ok = await EvaluationService.SubmitEvaluationAsync(EvaluatorId, new EvaluationRequest
+        {
+            TargetEmployeeId = TargetEmployee.Id,
+            EvalType         = EvalType.Functional,
+            FeedbackText     = fText.Trim(),
+            ObservationDate  = fDate
+        });
+
+        fOk   = ok;
+        fMsg  = ok ? "ارزیابی عملکردی با موفقیت ثبت شد ✔"
+                   : "خطا در ثبت ارزیابی. لطفاً دوباره تلاش کنید.";
+
+        if (ok) { fText = string.Empty; fDate = DateTime.Today; }
+
+        fBusy = false;
+    }
+}

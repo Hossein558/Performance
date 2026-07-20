@@ -1,0 +1,14 @@
+@inject NavigationManager Navigation
+
+@* 
+    Utility component used by AuthorizeRouteView's <NotAuthorized> template.
+    Forces a full page reload so the cookie auth middleware can issue a proper 302 redirect.
+    forceLoad:true exits the SignalR circuit and makes a real HTTP request.
+*@
+
+@code {
+    protected override void OnInitialized()
+    {
+        Navigation.NavigateTo("/Account/Login", forceLoad: true);
+    }
+}

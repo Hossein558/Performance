@@ -1,0 +1,16 @@
+@inject NavigationManager Navigation
+
+<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.NotFound)">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                @* Redirect unauthenticated in-circuit navigation to login *@
+                <RedirectToLogin />
+            </NotAuthorized>
+            <Authorizing>
+                <div class="auth-checking">در حال بررسی احراز هویت...</div>
+            </Authorizing>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>

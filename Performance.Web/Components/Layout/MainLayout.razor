@@ -1,0 +1,52 @@
+@inherits LayoutComponentBase
+
+<div class="app-shell">
+
+    <AuthorizeView>
+        <Authorized>
+            <header class="app-header">
+                <div class="header-brand">
+                    <span class="header-icon">📊</span>
+                    <span class="header-title">نظام ارزیابی عملکرد</span>
+                </div>
+
+                <div class="header-user">
+                    @* ═══════════════════════════════════════════════════════
+                         PHOTO PLACEHOLDER
+                         This <div> is reserved for the employee profile picture.
+                         Photo retrieval logic will be implemented in a future phase.
+                         Replace the avatar-initials span with an <img> tag when ready.
+                    ═══════════════════════════════════════════════════════ *@
+                    <div class="user-photo-placeholder" title="تصویر پروفایل">
+                        <span class="avatar-initials">
+                            @GetInitials(context.User.FindFirst("FullName")?.Value)
+                        </span>
+                    </div>
+
+                    <div class="user-info">
+                        <span class="user-name">@context.User.FindFirst("FullName")?.Value</span>
+                        <span class="user-code">کد: @context.User.FindFirst("PersonnelCode")?.Value</span>
+                    </div>
+
+                    <a href="/Account/Logout" class="btn-logout">خروج ↩</a>
+                </div>
+            </header>
+        </Authorized>
+    </AuthorizeView>
+
+    <main class="app-main">
+        @Body
+    </main>
+
+</div>
+
+@code {
+    private static string GetInitials(string? fullName)
+    {
+        if (string.IsNullOrWhiteSpace(fullName)) return "?";
+        var parts = fullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2
+            ? $"{parts[0][0]}{parts[1][0]}"
+            : parts[0][0].ToString();
+    }
+}

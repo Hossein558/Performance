@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- EF Core — SQL Server provider + CLI design-time tools -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design"    Version="10.0.*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+
+    <!--
+      nSoftware IPWorks Auth — resolved from the local NuGet source defined in NuGet.Config.
+      Place nsoftware.ipworksauth.24.0.9545.nupkg in the solution's LocalDependencies/ folder
+      before running `dotnet restore`.
+    -->
+    <PackageReference Include="nsoftware.IPWorksAuth" Version="24.0.9545" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      IANJA.lic: copied to the output/publish directory unchanged.
+      At runtime, Program.cs reads it via AppContext.BaseDirectory — works on Windows and Linux.
+      IMPORTANT: Do NOT commit this file to source control.
+    -->
+    <None Include="IANJA.lic" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

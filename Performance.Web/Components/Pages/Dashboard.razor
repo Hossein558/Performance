@@ -1,0 +1,131 @@
+@page "/"
+@attribute [Authorize]
+@inject IEmployeeService EmployeeService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>داشبورد ارزیابی عملکرد</PageTitle>
+
+@if (isLoading)
+{
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <span>در حال بارگذاری لیست زیردستان...</span>
+    </div>
+}
+else
+{
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">زیردستان مستقیم</h1>
+        <p class="dashboard-subtitle">
+            @allSubordinates.Count نفر یافت شد — برای ثبت ارزیابی روی هر کارت کلیک کنید
+        </p>
+    </div>
+
+    <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input type="search"
+               class="search-input"
+               placeholder="جستجو بر اساس نام، نام خانوادگی یا کد پرسنلی..."
+               value="@searchQuery"
+               @oninput="OnSearchInput" />
+    </div>
+
+    @if (filteredSubordinates.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <h3>
+                @if (string.IsNullOrWhiteSpace(searchQuery))
+                {
+                    <text>هیچ زیردستی یافت نشد</text>
+                }
+                else
+                {
+                    <text>نتیجه‌ای برای «@searchQuery» پیدا نشد</text>
+                }
+            </h3>
+            <p>در صورت بروز مشکل با واحد منابع انسانی تماس بگیرید.</p>
+        </div>
+    }
+    else
+    {
+        <div class="subordinates-grid">
+            @foreach (var emp in filteredSubordinates)
+            {
+                <SubordinateCard Employee="emp" OnClick="() => OpenEvalPanel(emp)" />
+            }
+        </div>
+    }
+}
+
+@if (showEvalPanel && selectedEmployee is not null)
+{
+    <EvaluationPanel
+        TargetEmployee="selectedEmployee"
+        Visible="showEvalPanel"
+        EvaluatorId="currentUserId"
+        OnClose="CloseEvalPanel" />
+}
+
+@code {
+    private List<EmployeeDto> allSubordinates      = new();
+    private List<EmployeeDto> filteredSubordinates = new();
+    private string            searchQuery          = string.Empty;
+    private bool              isLoading            = true;
+    private EmployeeDto?      selectedEmployee;
+    private bool              showEvalPanel;
+    private Guid              currentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Read the EmployeeId claim set during cookie sign-in
+        var authState      = await AuthStateProvider.GetAuthenticationStateAsync();
+        var employeeIdStr  = authState.User.FindFirst("EmployeeId")?.Value;
+
+        if (Guid.TryParse(employeeIdStr, out var id))
+        {
+            currentUserId  = id;
+            var results    = await EmployeeService.GetMySubordinatesAsync(currentUserId);
+            allSubordinates = results.ToList();
+            filteredSubordinates = new List<EmployeeDto>(allSubordinates);
+        }
+
+        isLoading = false;
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString() ?? string.Empty;
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            filteredSubordinates = new List<EmployeeDto>(allSubordinates);
+            return;
+        }
+
+        var q = searchQuery.Trim().ToLower();
+        filteredSubordinates = allSubordinates
+            .Where(e =>
+                e.FirstName.ToLower().Contains(q)    ||
+                e.LastName.ToLower().Contains(q)     ||
+                e.FullName.ToLower().Contains(q)     ||
+                e.PersonnelCode.ToLower().Contains(q))
+            .ToList();
+    }
+
+    private void OpenEvalPanel(EmployeeDto emp)
+    {
+        selectedEmployee = emp;
+        showEvalPanel    = true;
+    }
+
+    private void CloseEvalPanel()
+    {
+        showEvalPanel    = false;
+        selectedEmployee = null;
+    }
+}

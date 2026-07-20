@@ -1,0 +1,220 @@
+@page
+@model Performance.Web.Pages.Account.LoginModel
+@{
+    Layout = null; // Standalone page — no Blazor layout
+}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ورود به سیستم ارزیابی عملکرد</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(ellipse at 60% 40%, #1e3a5f 0%, #0f1923 60%, #000d1a 100%);
+            direction: rtl;
+        }
+
+        .stars {
+            position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
+        }
+        .stars::before, .stars::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(79,134,247,0.15) 0%, transparent 70%);
+        }
+        .stars::before { width: 600px; height: 600px; top: -100px; right: -100px; }
+        .stars::after  { width: 400px; height: 400px; bottom: -50px; left: -50px; }
+
+        .login-container {
+            position: relative; z-index: 1;
+            width: 100%; max-width: 440px;
+            padding: 1.5rem;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 24px;
+            padding: 2.75rem 2.5rem;
+            box-shadow:
+                0 4px 6px rgba(0,0,0,0.07),
+                0 20px 60px rgba(0,0,0,0.4),
+                0 0 0 1px rgba(255,255,255,0.1);
+        }
+
+        .login-brand {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .brand-icon {
+            display: inline-flex;
+            align-items: center; justify-content: center;
+            width: 68px; height: 68px;
+            background: linear-gradient(135deg, #4f86f7 0%, #1e3a5f 100%);
+            border-radius: 20px;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 20px rgba(79,134,247,0.4);
+        }
+
+        .brand-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1a2332;
+            line-height: 1.3;
+            margin-bottom: 0.35rem;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .error-banner {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #991b1b;
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: #1a2332;
+            background: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #4f86f7;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(79, 134, 247, 0.15);
+        }
+
+        .form-input::placeholder { color: #94a3b8; }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.9rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(135deg, #4f86f7 0%, #1e3a5f 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(79, 134, 247, 0.35);
+            letter-spacing: 0.02em;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 134, 247, 0.45);
+        }
+
+        .btn-login:active { transform: translateY(0); }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 1.75rem;
+            font-size: 0.78rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="login-container">
+        <div class="login-card">
+
+            <div class="login-brand">
+                <div class="brand-icon">📊</div>
+                <div class="brand-title">نظام ارزیابی عملکرد</div>
+                <div class="brand-subtitle">با حساب کاربری Active Directory وارد شوید</div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="error-banner">
+                    <span>⚠️</span>
+                    <span>@Model.ErrorMessage</span>
+                </div>
+            }
+
+            <form method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="form-group">
+                    <label class="form-label" for="Username">نام کاربری (sAMAccountName)</label>
+                    <input type="text"
+                           id="Username"
+                           name="Username"
+                           value="@Model.Username"
+                           class="form-input"
+                           placeholder="مثال: he110749"
+                           dir="ltr"
+                           autocomplete="username"
+                           autofocus
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="Password">رمز عبور Active Directory</label>
+                    <input type="password"
+                           id="Password"
+                           name="Password"
+                           class="form-input"
+                           placeholder="••••••••"
+                           dir="ltr"
+                           autocomplete="current-password"
+                           required />
+                </div>
+
+                <button type="submit" class="btn-login">ورود به سیستم →</button>
+            </form>
+
+            <div class="login-footer">
+                سیستم ارزیابی عملکرد کارکنان — نسخه ۱.۰
+            </div>
+        </div>
+    </div>
+</body>
+</html>

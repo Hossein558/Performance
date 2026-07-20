@@ -1,0 +1,35 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# .NET Core
+*.myapp
+*.pdb
+*.idb
+*.cache
+
+# Credentials & Licenses
+IANJA.lic
+
+# Agent / Environment
+.gemini/
+.vscode/
+
+# Packages (we DO want to keep LocalDependencies folder and the .nupkg inside it!)
