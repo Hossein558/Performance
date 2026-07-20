@@ -33,11 +33,16 @@ public class LoginModel : PageModel
 
     public string? ErrorMessage { get; set; }
 
-    public IActionResult OnGet()
+    public IActionResult OnGet([FromQuery] string? error)
     {
         // Already logged in — skip login page
         if (User.Identity?.IsAuthenticated == true)
             return LocalRedirect("/");
+
+        if (!string.IsNullOrEmpty(error))
+        {
+            ErrorMessage = error;
+        }
 
         return Page();
     }

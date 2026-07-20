@@ -152,6 +152,30 @@
 
         .btn-login:active { transform: translateY(0); }
 
+        .btn-windows-login {
+            display: block;
+            width: 100%;
+            padding: 0.9rem;
+            margin-top: 0.75rem;
+            background: rgba(79, 134, 247, 0.1);
+            color: #1e3a5f;
+            border: 1.5px solid rgba(79, 134, 247, 0.2);
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-windows-login:hover {
+            background: rgba(79, 134, 247, 0.15);
+            border-color: rgba(79, 134, 247, 0.4);
+            transform: translateY(-1px);
+        }
+
         .login-footer {
             text-align: center;
             margin-top: 1.75rem;
@@ -209,6 +233,10 @@
                 </div>
 
                 <button type="submit" class="btn-login">ورود به سیستم →</button>
+
+                <a href="/Account/WindowsLogin" class="btn-windows-login">
+                    ورود خودکار با حساب ویندوز
+                </a>
             </form>
 
             <div class="login-footer">

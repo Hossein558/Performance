@@ -9,13 +9,13 @@
 {
     <div class="loading-container">
         <div class="spinner"></div>
-        <span>در حال بارگذاری لیست زیردستان...</span>
+        <span>در حال بارگذاری لیست اعضای زیرمجموعه...</span>
     </div>
 }
 else
 {
     <div class="dashboard-header">
-        <h1 class="dashboard-title">زیردستان مستقیم</h1>
+        <h1 class="dashboard-title">اعضای زیرمجموعه</h1>
         <p class="dashboard-subtitle">
             @allSubordinates.Count نفر یافت شد — برای ثبت ارزیابی روی هر کارت کلیک کنید
         </p>
@@ -37,7 +37,7 @@ else
             <h3>
                 @if (string.IsNullOrWhiteSpace(searchQuery))
                 {
-                    <text>هیچ زیردستی یافت نشد</text>
+                    <text>هیچ زیرمجموعه‌ای یافت نشد</text>
                 }
                 else
                 {

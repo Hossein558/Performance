@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.EntityFrameworkCore;
 using Performance.Web.Components;
 using Performance.Web.Data;
@@ -50,7 +51,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.HttpOnly     = true;
         options.Cookie.SameSite     = SameSiteMode.Lax;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    });
+    })
+    .AddNegotiate();
 
 builder.Services.AddAuthorization();
 
@@ -82,7 +84,7 @@ builder.Services.AddScoped<IEvaluationRepository, EvaluationRepository>();
 // APPLICATION SERVICES
 // LdapSettings includes LicenseKey injected above from the .lic file.
 // ═══════════════════════════════════════════════════════════════════════════════
-builder.Services.Configure<LdapSettings>(builder.Configuration.GetSection("LdapSettings"));
+builder.Services.Configure<Performance.Web.Services.LdapSettings>(builder.Configuration.GetSection("LdapSettings"));
 builder.Services.AddScoped<ILdapAuthService,  LdapAuthService>();
 builder.Services.AddScoped<IEmployeeService,  EmployeeService>();
 builder.Services.AddScoped<IEvaluationService, EvaluationService>();
