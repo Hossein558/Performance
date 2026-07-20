@@ -5,8 +5,16 @@
         This <div class="card-avatar"> displays generated initials.
         Replace the inner <span> with an <img> tag once photo retrieval is implemented.
     *@
-    <div class="card-avatar">
-        <span>@Employee.Initials</span>
+    <div class="card-avatar avatar-wrapper" style="width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; position: relative;">
+        <img src="/api/avatar/@Employee.PersonnelCode"
+             class="header-avatar-photo"
+             alt="@Employee.FullName"
+             style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';" />
+        <span class="avatar-chip avatar-fallback"
+              style="display:none; width: 100%; height: 100%; font-size: 1.2rem; align-items: center; justify-content: center;">
+            @Employee.Initials
+        </span>
     </div>
 
     <div class="card-body">

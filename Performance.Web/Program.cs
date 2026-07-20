@@ -10,8 +10,7 @@ using Performance.Web.Services;
 // ═══════════════════════════════════════════════════════════════════════════════
 // SYNCFUSION LICENSE — MUST be the very first call before builder or any component
 // ═══════════════════════════════════════════════════════════════════════════════
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
-    "@32392e302e303b32393bKq35AiUSRDJT5uIaFzRCrJWDo7gKUKH1Rwb6jH+WX4o=");
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("@32392e302e303b32393bKq35AiUSRDJT5uIaFzRCrJWDo7gKUKH1Rwb6jH+WX4o=");
 
 var builder = WebApplication.CreateBuilder(args);
 
