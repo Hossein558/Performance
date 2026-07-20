@@ -15,7 +15,17 @@ var builder = WebApplication.CreateBuilder(args);
 var licPath = Path.Combine(AppContext.BaseDirectory, "IANJA.lic");
 if (File.Exists(licPath))
 {
-    builder.Configuration["LdapSettings:LicenseKey"] = File.ReadAllText(licPath).Trim();
+    var licContent = File.ReadAllText(licPath);
+    var rtkMatch = System.Text.RegularExpressions.Regex.Match(licContent, "\"RTK\"=\"([^\"]+)\"");
+    if (rtkMatch.Success)
+    {
+        builder.Configuration["LdapSettings:LicenseKey"] = rtkMatch.Groups[1].Value;
+    }
+    else
+    {
+        // Fallback in case it's just a plain text key
+        builder.Configuration["LdapSettings:LicenseKey"] = licContent.Trim();
+    }
 }
 else
 {
