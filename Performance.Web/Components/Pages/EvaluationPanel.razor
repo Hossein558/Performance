@@ -43,8 +43,7 @@
                         <label class="form-label">
                             تاریخ مشاهده <span class="required-mark">*</span>
                         </label>
-                        <input type="date" class="date-input"
-                               @bind="bDate" @bind:format="yyyy-MM-dd" />
+                        <InputPersianDatePicker @bind-Value="bDate" class="form-input" />
                     </div>
 
                     <div class="form-row">
@@ -78,8 +77,7 @@
                         <label class="form-label">
                             تاریخ مشاهده <span class="required-mark">*</span>
                         </label>
-                        <input type="date" class="date-input"
-                               @bind="fDate" @bind:format="yyyy-MM-dd" />
+                        <InputPersianDatePicker @bind-Value="fDate" class="form-input" />
                     </div>
 
                     <div class="form-row">
@@ -113,14 +111,14 @@
     private EvalType activeTab = EvalType.Behavioral;
 
     // ── Behavioral Tab State ───────────────────────────────────────────────────
-    private DateTime bDate = DateTime.Today;
+    private string bDate = "";
     private string   bText = string.Empty;
     private bool     bBusy;
     private string   bMsg  = string.Empty;
     private bool     bOk;
 
     // ── Functional Tab State ───────────────────────────────────────────────────
-    private DateTime fDate = DateTime.Today;
+    private string fDate = "";
     private string   fText = string.Empty;
     private bool     fBusy;
     private string   fMsg  = string.Empty;
@@ -144,14 +142,18 @@
             TargetEmployeeId = TargetEmployee.Id,
             EvalType         = EvalType.Behavioral,
             FeedbackText     = bText.Trim(),
-            ObservationDate  = bDate
+            ObservationDate  = ParsePersianDate(bDate)
         });
 
         bOk   = ok;
         bMsg  = ok ? "ارزیابی رفتاری با موفقیت ثبت شد ✔"
                    : "خطا در ثبت ارزیابی. لطفاً دوباره تلاش کنید.";
 
-        if (ok) { bText = string.Empty; bDate = DateTime.Today; }
+        if (ok)
+        {
+            bDate = "";
+            bText = string.Empty;
+        }
 
         bBusy = false;
     }
@@ -173,15 +175,35 @@
             TargetEmployeeId = TargetEmployee.Id,
             EvalType         = EvalType.Functional,
             FeedbackText     = fText.Trim(),
-            ObservationDate  = fDate
+            ObservationDate  = ParsePersianDate(fDate)
         });
 
         fOk   = ok;
         fMsg  = ok ? "ارزیابی عملکردی با موفقیت ثبت شد ✔"
                    : "خطا در ثبت ارزیابی. لطفاً دوباره تلاش کنید.";
 
-        if (ok) { fText = string.Empty; fDate = DateTime.Today; }
+        if (ok)
+        {
+            fDate = "";
+            fText = string.Empty;
+        }
 
         fBusy = false;
+    }
+    
+    private DateTime ParsePersianDate(string pDate)
+    {
+        if (string.IsNullOrWhiteSpace(pDate)) return DateTime.Today;
+        try
+        {
+            var parts = pDate.Split('/');
+            if (parts.Length == 3)
+            {
+                var pc = new System.Globalization.PersianCalendar();
+                return pc.ToDateTime(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2]), 0, 0, 0, 0);
+            }
+        }
+        catch { }
+        return DateTime.Today;
     }
 }
