@@ -59,15 +59,22 @@
                                         <GridColumns>
                                             <GridColumn Field="@nameof(EvaluationDto.EvaluatorName)"
                                                         HeaderText="ارزیاب"
-                                                        Width="160">
+                                                        Width="180">
                                                 <Template>
                                                     @{
                                                         var row = (EvaluationDto)context;
                                                     }
                                                     <div class="evaluator-cell">
-                                                        <span class="avatar-chip" style="background:@GetAvatarColor(row.EvaluatorName)">
-                                                            @GetInitials(row.EvaluatorName)
-                                                        </span>
+                                                        <div class="avatar-wrapper">
+                                                            <img src="/api/avatar/@row.EvaluatorPersonnelCode"
+                                                                 class="avatar-photo"
+                                                                 alt="@row.EvaluatorName"
+                                                                 onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';" />
+                                                            <span class="avatar-chip avatar-fallback"
+                                                                  style="background:@GetAvatarColor(row.EvaluatorName);display:none;">
+                                                                @GetInitials(row.EvaluatorName)
+                                                            </span>
+                                                        </div>
                                                         <span>@row.EvaluatorName</span>
                                                     </div>
                                                 </Template>
@@ -107,9 +114,14 @@
                         <ContentTemplate>
                             <div class="tab-section">
 
-                                @* ── Filter: MultiSelect with avatar initials ── *@
+                                @* ── Filter: MultiSelect with photo avatars ── *@
                                 <div class="filter-row">
                                     <label class="filter-label">🔍 فیلتر بر اساس اعضای زیرمجموعه:</label>
+                                    @*
+                                        FIX: Both Value AND ValueChanged must be set for Syncfusion
+                                        CheckBox mode to function correctly. Omitting Value means the
+                                        component never knows its selected state → checkboxes appear broken.
+                                    *@
                                     <SfMultiSelect TValue="Guid[]"
                                                    TItem="EmployeeDto"
                                                    DataSource="@mySubordinates"
@@ -120,6 +132,7 @@
                                                    ShowSelectAll="true"
                                                    EnableSelectionOrder="false"
                                                    CssClass="subordinate-multiselect"
+                                                   Value="@selectedSubordinateIds"
                                                    ValueChanged="@OnSubordinateFilterChanged">
                                         <ItemTemplate>
                                             @{
@@ -130,8 +143,9 @@
                                                     <img src="/api/avatar/@emp.PersonnelCode"
                                                          class="avatar-photo"
                                                          alt="@emp.FullName"
-                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
-                                                    <span class="avatar-chip avatar-fallback" style="background:@GetAvatarColor(emp.FullName); display:none;">
+                                                         onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';" />
+                                                    <span class="avatar-chip avatar-fallback"
+                                                          style="background:@GetAvatarColor(emp.FullName);display:none;">
                                                         @GetInitials(emp.FullName)
                                                     </span>
                                                 </div>
@@ -171,15 +185,22 @@
                                         <GridColumns>
                                             <GridColumn Field="@nameof(EvaluationDto.TargetName)"
                                                         HeaderText="عضو زیرمجموعه"
-                                                        Width="170">
+                                                        Width="180">
                                                 <Template>
                                                     @{
                                                         var row = (EvaluationDto)context;
                                                     }
                                                     <div class="evaluator-cell">
-                                                        <span class="avatar-chip" style="background:@GetAvatarColor(row.TargetName)">
-                                                            @GetInitials(row.TargetName)
-                                                        </span>
+                                                        <div class="avatar-wrapper">
+                                                            <img src="/api/avatar/@row.TargetPersonnelCode"
+                                                                 class="avatar-photo"
+                                                                 alt="@row.TargetName"
+                                                                 onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';" />
+                                                            <span class="avatar-chip avatar-fallback"
+                                                                  style="background:@GetAvatarColor(row.TargetName);display:none;">
+                                                                @GetInitials(row.TargetName)
+                                                            </span>
+                                                        </div>
                                                         <span>@row.TargetName</span>
                                                     </div>
                                                 </Template>
@@ -225,10 +246,10 @@
     private List<EvaluationDto> receivedEvaluations = new();
 
     // Tab 2 — given
-    private List<EvaluationDto> allGivenEvaluations     = new();
+    private List<EvaluationDto> allGivenEvaluations      = new();
     private List<EvaluationDto> filteredGivenEvaluations = new();
-    private List<EmployeeDto>   mySubordinates           = new();
-    private Guid[]              selectedSubordinateIds   = Array.Empty<Guid>();
+    private List<EmployeeDto>   mySubordinates            = new();
+    private Guid[]              selectedSubordinateIds    = Array.Empty<Guid>();
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
     protected override async Task OnInitializedAsync()

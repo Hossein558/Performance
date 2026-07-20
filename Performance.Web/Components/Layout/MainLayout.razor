@@ -20,15 +20,17 @@
                 </nav>
 
                 <div class="header-user">
-                    @* ═══════════════════════════════════════════════════════
-                         PHOTO PLACEHOLDER
-                         This <div> is reserved for the employee profile picture.
-                         Photo retrieval logic will be implemented in a future phase.
-                         Replace the avatar-initials span with an <img> tag when ready.
-                    ═══════════════════════════════════════════════════════ *@
-                    <div class="user-photo-placeholder" title="تصویر پروفایل">
-                        <span class="avatar-initials">
-                            @GetInitials(context.User.FindFirst("FullName")?.Value)
+                    @{
+                        var personnelCode = context.User.FindFirst("PersonnelCode")?.Value;
+                        var fullName      = context.User.FindFirst("FullName")?.Value;
+                    }
+                    <div class="user-photo-placeholder" title="@fullName">
+                        <img src="/api/avatar/@personnelCode"
+                             class="header-avatar-photo"
+                             alt="@fullName"
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';" />
+                        <span class="avatar-initials" style="display:none;">
+                            @GetInitials(fullName)
                         </span>
                     </div>
 

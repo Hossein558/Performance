@@ -69,14 +69,16 @@ public class EvaluationService : IEvaluationService
     // ── Private Helpers ──────────────────────────────────────────────────────
     private static EvaluationDto MapToDto(Evaluation e) => new()
     {
-        Id               = e.Id,
-        EvaluatorId      = e.EvaluatorId,
-        EvaluatorName    = $"{e.Evaluator.FirstName} {e.Evaluator.LastName}".Trim(),
-        TargetEmployeeId = e.TargetEmployeeId,
-        TargetName       = $"{e.TargetEmployee.FirstName} {e.TargetEmployee.LastName}".Trim(),
-        EvalType         = e.EvalType,
-        FeedbackText     = e.FeedbackText,
-        ObservationDate  = e.ObservationDate,
-        CreatedAt        = e.CreatedAt
+        Id                     = e.Id,
+        EvaluatorId            = e.EvaluatorId,
+        EvaluatorName          = $"{e.Evaluator.FirstName} {e.Evaluator.LastName}".Trim(),
+        EvaluatorPersonnelCode = e.Evaluator.PersonnelCode,
+        TargetEmployeeId       = e.TargetEmployeeId,
+        TargetName             = $"{e.TargetEmployee.FirstName} {e.TargetEmployee.LastName}".Trim(),
+        TargetPersonnelCode    = e.TargetEmployee.PersonnelCode,
+        EvalType               = e.EvalType,
+        FeedbackText           = e.FeedbackText,
+        ObservationDate        = e.ObservationDate,
+        CreatedAt              = e.CreatedAt
     };
 }

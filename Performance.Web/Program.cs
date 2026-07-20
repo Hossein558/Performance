@@ -7,6 +7,12 @@ using Performance.Web.Data;
 using Performance.Web.Repositories;
 using Performance.Web.Services;
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// SYNCFUSION LICENSE — MUST be the very first call before builder or any component
+// ═══════════════════════════════════════════════════════════════════════════════
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
+    "@32392e302e303b32393bKq35AiUSRDJT5uIaFzRCrJWDo7gKUKH1Rwb6jH+WX4o=");
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -120,8 +126,9 @@ builder.Services.AddRazorComponents()
 // ═══════════════════════════════════════════════════════════════════════════════
 // SYNCFUSION BLAZOR
 // ═══════════════════════════════════════════════════════════════════════════════
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("@32392e302e303b32393bKq35AiUSRDJT5uIaFzRCrJWDo7gKUKH1Rwb6jH+WX4o=");
 builder.Services.AddSyncfusionBlazor();
+
+// (License already registered at top of file)
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HTTP PIPELINE

@@ -4,16 +4,18 @@ namespace Performance.Web.DTOs;
 
 /// <summary>
 /// A flat DTO for displaying a single evaluation record in the Reports grid.
-/// Contains denormalized names so the UI never has to re-query the database.
+/// Contains denormalized names and codes so the UI never has to re-query the database.
 /// </summary>
 public class EvaluationDto
 {
-    public Guid     Id              { get; set; }
-    public string   EvaluatorName   { get; set; } = string.Empty;
-    public Guid     EvaluatorId     { get; set; }
-    public string   TargetName      { get; set; } = string.Empty;
-    public Guid     TargetEmployeeId { get; set; }
-    public EvalType EvalType        { get; set; }
+    public Guid     Id                       { get; set; }
+    public string   EvaluatorName            { get; set; } = string.Empty;
+    public string   EvaluatorPersonnelCode   { get; set; } = string.Empty;
+    public Guid     EvaluatorId              { get; set; }
+    public string   TargetName               { get; set; } = string.Empty;
+    public string   TargetPersonnelCode      { get; set; } = string.Empty;
+    public Guid     TargetEmployeeId         { get; set; }
+    public EvalType EvalType                 { get; set; }
 
     /// <summary>Localised display label for EvalType.</summary>
     public string EvalTypeLabel => EvalType == EvalType.Behavioral ? "رفتاری" : "عملکردی";
