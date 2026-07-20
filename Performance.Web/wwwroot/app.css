@@ -481,3 +481,178 @@ button { font-family: inherit; }
 @media (max-width: 400px) {
     .user-info { display: none; }
 }
+/* ═══ HEADER NAV LINKS ═══════════════════════════════════════════════════════ */
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    justify-content: center;
+}
+
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1.1rem;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.18s, color 0.18s;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+}
+
+.nav-link.active {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    font-weight: 700;
+}
+
+/* ═══ REPORTS PAGE ═══════════════════════════════════════════════════════════ */
+.reports-page {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.reports-header {
+    margin-bottom: 2rem;
+}
+
+.reports-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 0.4rem;
+}
+
+.reports-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.reports-tabs-wrapper {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.tab-section {
+    padding: 1.5rem;
+}
+
+.tab-label {
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+/* ═══ FILTER ROW ═════════════════════════════════════════════════════════════ */
+.filter-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+/* ═══ REPORTS GRID OVERRIDES ═════════════════════════════════════════════════ */
+.reports-grid .e-grid {
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    font-family: 'Vazirmatn', sans-serif;
+    direction: rtl;
+}
+
+.reports-grid .e-headercell {
+    background: #f8fafc !important;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.reports-grid .e-rowcell {
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+/* ═══ AVATAR CHIPS IN GRID ═══════════════════════════════════════════════════ */
+.evaluator-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.avatar-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.72rem;
+    flex-shrink: 0;
+    letter-spacing: 0.03em;
+}
+
+/* ═══ EVAL TYPE BADGES ═══════════════════════════════════════════════════════ */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.badge-behavior {
+    background: rgba(79,134,247,0.12);
+    color: #2563eb;
+    border: 1px solid rgba(79,134,247,0.3);
+}
+
+.badge-function {
+    background: rgba(5,150,105,0.12);
+    color: #059669;
+    border: 1px solid rgba(5,150,105,0.3);
+}
+
+/* ═══ MULTISELECT ITEM TEMPLATE ══════════════════════════════════════════════ */
+.ms-item-row {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.2rem 0;
+}
+
+.ms-item-name {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.subordinate-multiselect {
+    width: 100%;
+    max-width: 520px;
+}
+
+.subordinate-multiselect .e-multiselect {
+    font-family: 'Vazirmatn', sans-serif;
+    direction: rtl;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+

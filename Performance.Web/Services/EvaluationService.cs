@@ -51,4 +51,32 @@ public class EvaluationService : IEvaluationService
             return false;
         }
     }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<EvaluationDto>> GetReceivedEvaluationsAsync(Guid targetEmployeeId)
+    {
+        var evaluations = await _evaluationRepository.GetByTargetAsync(targetEmployeeId);
+        return evaluations.Select(MapToDto);
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<EvaluationDto>> GetGivenEvaluationsAsync(Guid evaluatorId)
+    {
+        var evaluations = await _evaluationRepository.GetByEvaluatorAsync(evaluatorId);
+        return evaluations.Select(MapToDto);
+    }
+
+    // ── Private Helpers ──────────────────────────────────────────────────────
+    private static EvaluationDto MapToDto(Evaluation e) => new()
+    {
+        Id               = e.Id,
+        EvaluatorId      = e.EvaluatorId,
+        EvaluatorName    = $"{e.Evaluator.FirstName} {e.Evaluator.LastName}".Trim(),
+        TargetEmployeeId = e.TargetEmployeeId,
+        TargetName       = $"{e.TargetEmployee.FirstName} {e.TargetEmployee.LastName}".Trim(),
+        EvalType         = e.EvalType,
+        FeedbackText     = e.FeedbackText,
+        ObservationDate  = e.ObservationDate,
+        CreatedAt        = e.CreatedAt
+    };
 }

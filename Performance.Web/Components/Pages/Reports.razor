@@ -1,0 +1,288 @@
+@page "/reports"
+@attribute [Authorize]
+@inject IEvaluationService EvaluationService
+@inject IEmployeeService   EmployeeService
+@inject AuthenticationStateProvider AuthStateProvider
+
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.DropDowns
+
+<PageTitle>گزارش‌ها</PageTitle>
+
+<div class="reports-page">
+
+    <div class="reports-header">
+        <h1 class="reports-title">📊 گزارش‌ها و بازخوردها</h1>
+        <p class="reports-subtitle">مرور همه بازخوردهای دریافتی و ارسالی</p>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <span>در حال بارگذاری گزارش‌ها...</span>
+        </div>
+    }
+    else
+    {
+        <div class="reports-tabs-wrapper">
+            <SfTab>
+                <TabItems>
+
+                    @* ════════════════════════════════════════════════════════════
+                       TAB 1 — بازخوردهای دریافتی  (Employee / Target view)
+                       ════════════════════════════════════════════════════════════ *@
+                    <TabItem>
+                        <HeaderTemplate>
+                            <span class="tab-label">📥 بازخوردهای دریافتی</span>
+                        </HeaderTemplate>
+                        <ContentTemplate>
+                            <div class="tab-section">
+                                @if (receivedEvaluations.Count == 0)
+                                {
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📭</div>
+                                        <h3>هنوز بازخوردی دریافت نشده</h3>
+                                        <p>بازخوردهایی که مدیران برای شما ثبت کنند اینجا نمایش داده می‌شوند.</p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <SfGrid DataSource="@receivedEvaluations"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            AllowTextWrap="true"
+                                            CssClass="reports-grid">
+                                        <GridPageSettings PageSize="10" />
+                                        <GridTextWrapSettings WrapMode="WrapMode.Content" />
+                                        <GridColumns>
+                                            <GridColumn Field="@nameof(EvaluationDto.EvaluatorName)"
+                                                        HeaderText="ارزیاب"
+                                                        Width="160">
+                                                <Template>
+                                                    @{
+                                                        var row = (EvaluationDto)context;
+                                                    }
+                                                    <div class="evaluator-cell">
+                                                        <span class="avatar-chip" style="background:@GetAvatarColor(row.EvaluatorName)">
+                                                            @GetInitials(row.EvaluatorName)
+                                                        </span>
+                                                        <span>@row.EvaluatorName</span>
+                                                    </div>
+                                                </Template>
+                                            </GridColumn>
+                                            <GridColumn Field="@nameof(EvaluationDto.EvalTypeLabel)"
+                                                        HeaderText="نوع ارزیابی"
+                                                        Width="130">
+                                                <Template>
+                                                    @{
+                                                        var row = (EvaluationDto)context;
+                                                    }
+                                                    <span class="badge @(row.EvalType == Enums.EvalType.Behavioral ? "badge-behavior" : "badge-function")">
+                                                        @row.EvalTypeLabel
+                                                    </span>
+                                                </Template>
+                                            </GridColumn>
+                                            <GridColumn Field="@nameof(EvaluationDto.ObservationDateShamsi)"
+                                                        HeaderText="تاریخ مشاهده"
+                                                        Width="140" />
+                                            <GridColumn Field="@nameof(EvaluationDto.FeedbackText)"
+                                                        HeaderText="متن بازخورد"
+                                                        Width="400" />
+                                        </GridColumns>
+                                    </SfGrid>
+                                }
+                            </div>
+                        </ContentTemplate>
+                    </TabItem>
+
+                    @* ════════════════════════════════════════════════════════════
+                       TAB 2 — بازخوردهای داده شده  (Manager / Evaluator view)
+                       ════════════════════════════════════════════════════════════ *@
+                    <TabItem>
+                        <HeaderTemplate>
+                            <span class="tab-label">📤 بازخوردهای داده شده</span>
+                        </HeaderTemplate>
+                        <ContentTemplate>
+                            <div class="tab-section">
+
+                                @* ── Filter: MultiSelect with avatar initials ── *@
+                                <div class="filter-row">
+                                    <label class="filter-label">🔍 فیلتر بر اساس اعضای زیرمجموعه:</label>
+                                    <SfMultiSelect TValue="Guid[]"
+                                                   TItem="EmployeeDto"
+                                                   DataSource="@mySubordinates"
+                                                   Placeholder="همه اعضا نمایش داده می‌شوند..."
+                                                   ValueField="Id"
+                                                   TextField="FullName"
+                                                   Mode="VisualMode.CheckBox"
+                                                   ShowSelectAll="true"
+                                                   EnableSelectionOrder="false"
+                                                   CssClass="subordinate-multiselect"
+                                                   ValueChanged="@OnSubordinateFilterChanged">
+                                        <ItemTemplate>
+                                            @{
+                                                var emp = (EmployeeDto)context;
+                                            }
+                                            <div class="ms-item-row">
+                                                <span class="avatar-chip" style="background:@GetAvatarColor(emp.FullName)">
+                                                    @GetInitials(emp.FullName)
+                                                </span>
+                                                <span class="ms-item-name">@emp.FullName</span>
+                                            </div>
+                                        </ItemTemplate>
+                                    </SfMultiSelect>
+                                </div>
+
+                                @* ── Given Evaluations Grid ── *@
+                                @if (filteredGivenEvaluations.Count == 0)
+                                {
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📋</div>
+                                        <h3>بازخوردی یافت نشد</h3>
+                                        <p>
+                                            @if (selectedSubordinateIds.Length == 0)
+                                            {
+                                                <text>هنوز بازخوردی ثبت نشده است.</text>
+                                            }
+                                            else
+                                            {
+                                                <text>برای اعضای انتخاب‌شده بازخوردی وجود ندارد.</text>
+                                            }
+                                        </p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <SfGrid DataSource="@filteredGivenEvaluations"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            AllowTextWrap="true"
+                                            CssClass="reports-grid">
+                                        <GridPageSettings PageSize="10" />
+                                        <GridTextWrapSettings WrapMode="WrapMode.Content" />
+                                        <GridColumns>
+                                            <GridColumn Field="@nameof(EvaluationDto.TargetName)"
+                                                        HeaderText="عضو زیرمجموعه"
+                                                        Width="170">
+                                                <Template>
+                                                    @{
+                                                        var row = (EvaluationDto)context;
+                                                    }
+                                                    <div class="evaluator-cell">
+                                                        <span class="avatar-chip" style="background:@GetAvatarColor(row.TargetName)">
+                                                            @GetInitials(row.TargetName)
+                                                        </span>
+                                                        <span>@row.TargetName</span>
+                                                    </div>
+                                                </Template>
+                                            </GridColumn>
+                                            <GridColumn Field="@nameof(EvaluationDto.EvalTypeLabel)"
+                                                        HeaderText="نوع ارزیابی"
+                                                        Width="130">
+                                                <Template>
+                                                    @{
+                                                        var row = (EvaluationDto)context;
+                                                    }
+                                                    <span class="badge @(row.EvalType == Enums.EvalType.Behavioral ? "badge-behavior" : "badge-function")">
+                                                        @row.EvalTypeLabel
+                                                    </span>
+                                                </Template>
+                                            </GridColumn>
+                                            <GridColumn Field="@nameof(EvaluationDto.ObservationDateShamsi)"
+                                                        HeaderText="تاریخ مشاهده"
+                                                        Width="140" />
+                                            <GridColumn Field="@nameof(EvaluationDto.FeedbackText)"
+                                                        HeaderText="متن بازخورد"
+                                                        Width="400" />
+                                        </GridColumns>
+                                    </SfGrid>
+                                }
+                            </div>
+                        </ContentTemplate>
+                    </TabItem>
+
+                </TabItems>
+            </SfTab>
+        </div>
+    }
+
+</div>
+
+@code {
+    // ── State ─────────────────────────────────────────────────────────────────
+    private bool isLoading = true;
+    private Guid currentUserId;
+
+    // Tab 1 — received
+    private List<EvaluationDto> receivedEvaluations = new();
+
+    // Tab 2 — given
+    private List<EvaluationDto> allGivenEvaluations     = new();
+    private List<EvaluationDto> filteredGivenEvaluations = new();
+    private List<EmployeeDto>   mySubordinates           = new();
+    private Guid[]              selectedSubordinateIds   = Array.Empty<Guid>();
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    protected override async Task OnInitializedAsync()
+    {
+        var authState     = await AuthStateProvider.GetAuthenticationStateAsync();
+        var employeeIdStr = authState.User.FindFirst("EmployeeId")?.Value;
+
+        if (!Guid.TryParse(employeeIdStr, out currentUserId))
+        {
+            isLoading = false;
+            return;
+        }
+
+        // Load all three data sources in parallel
+        var receivedTask      = EvaluationService.GetReceivedEvaluationsAsync(currentUserId);
+        var givenTask         = EvaluationService.GetGivenEvaluationsAsync(currentUserId);
+        var subordinatesTask  = EmployeeService.GetMySubordinatesAsync(currentUserId);
+
+        await Task.WhenAll(receivedTask, givenTask, subordinatesTask);
+
+        receivedEvaluations      = (await receivedTask).ToList();
+        allGivenEvaluations      = (await givenTask).ToList();
+        filteredGivenEvaluations = new List<EvaluationDto>(allGivenEvaluations);
+        mySubordinates           = (await subordinatesTask).ToList();
+
+        isLoading = false;
+    }
+
+    // ── Filter Logic ──────────────────────────────────────────────────────────
+    private void OnSubordinateFilterChanged(Guid[] selected)
+    {
+        selectedSubordinateIds = selected ?? Array.Empty<Guid>();
+
+        filteredGivenEvaluations = selectedSubordinateIds.Length == 0
+            ? new List<EvaluationDto>(allGivenEvaluations)
+            : allGivenEvaluations
+                .Where(e => selectedSubordinateIds.Contains(e.TargetEmployeeId))
+                .ToList();
+    }
+
+    // ── Avatar Helpers ────────────────────────────────────────────────────────
+    private static readonly string[] AvatarPalette =
+    {
+        "#1e3a5f", "#2d5a8e", "#4f86f7", "#059669", "#7c3aed",
+        "#db2777", "#d97706", "#0891b2", "#65a30d", "#dc2626"
+    };
+
+    private static string GetInitials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2
+            ? $"{parts[0][0]}{parts[1][0]}"
+            : parts[0][0].ToString();
+    }
+
+    private static string GetAvatarColor(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return AvatarPalette[0];
+        var idx = Math.Abs(name.GetHashCode()) % AvatarPalette.Length;
+        return AvatarPalette[idx];
+    }
+}
