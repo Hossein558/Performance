@@ -154,4 +154,36 @@ app.MapRazorPages();                           // Login & Logout Razor Pages
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// AVATAR IMAGE ENDPOINT
+// Serves employee profile photos from the UNC share.
+// UNC paths are inaccessible to browsers directly — this proxies them safely.
+// Path format: \\datap2\Crouse\Services-Support-P2\Personel\1-{personnelCode}.JPG
+// ═══════════════════════════════════════════════════════════════════════════════
+app.MapGet("/api/avatar/{personnelCode}", (string personnelCode, ILogger<Program> logger) =>
+{
+    // Sanitize: reject any path traversal characters
+    if (string.IsNullOrWhiteSpace(personnelCode) ||
+        personnelCode.Contains('\\') ||
+        personnelCode.Contains('/') ||
+        personnelCode.Contains(".", StringComparison.Ordinal))
+    {
+        logger.LogWarning("Avatar request rejected — invalid personnelCode: '{Code}'", personnelCode);
+        return Results.NotFound();
+    }
+
+    var filePath = @"\\datap2\Crouse\Services-Support-P2\Personel\1-" + personnelCode + ".JPG";
+    logger.LogInformation("Avatar request for personnelCode '{Code}' — resolved path: {Path}", personnelCode, filePath);
+
+    if (!File.Exists(filePath))
+    {
+        logger.LogWarning("Avatar file NOT found for personnelCode '{Code}' at: {Path}", personnelCode, filePath);
+        return Results.NotFound();
+    }
+
+    logger.LogInformation("Avatar file FOUND for personnelCode '{Code}' — serving.", personnelCode);
+    var stream = File.OpenRead(filePath);
+    return Results.File(stream, contentType: "image/jpeg", enableRangeProcessing: false);
+}).AllowAnonymous(); // Images do not carry sensitive data; auth handled at page level
+
 app.Run();

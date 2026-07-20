@@ -126,9 +126,15 @@
                                                 var emp = (EmployeeDto)context;
                                             }
                                             <div class="ms-item-row">
-                                                <span class="avatar-chip" style="background:@GetAvatarColor(emp.FullName)">
-                                                    @GetInitials(emp.FullName)
-                                                </span>
+                                                <div class="avatar-wrapper">
+                                                    <img src="/api/avatar/@emp.PersonnelCode"
+                                                         class="avatar-photo"
+                                                         alt="@emp.FullName"
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                                                    <span class="avatar-chip avatar-fallback" style="background:@GetAvatarColor(emp.FullName); display:none;">
+                                                        @GetInitials(emp.FullName)
+                                                    </span>
+                                                </div>
                                                 <span class="ms-item-name">@emp.FullName</span>
                                             </div>
                                         </ItemTemplate>
@@ -236,17 +242,11 @@
             return;
         }
 
-        // Load all three data sources in parallel
-        var receivedTask      = EvaluationService.GetReceivedEvaluationsAsync(currentUserId);
-        var givenTask         = EvaluationService.GetGivenEvaluationsAsync(currentUserId);
-        var subordinatesTask  = EmployeeService.GetMySubordinatesAsync(currentUserId);
-
-        await Task.WhenAll(receivedTask, givenTask, subordinatesTask);
-
-        receivedEvaluations      = (await receivedTask).ToList();
-        allGivenEvaluations      = (await givenTask).ToList();
+        // DbContext is NOT thread-safe — await sequentially to avoid concurrency exceptions
+        receivedEvaluations      = (await EvaluationService.GetReceivedEvaluationsAsync(currentUserId)).ToList();
+        allGivenEvaluations      = (await EvaluationService.GetGivenEvaluationsAsync(currentUserId)).ToList();
         filteredGivenEvaluations = new List<EvaluationDto>(allGivenEvaluations);
-        mySubordinates           = (await subordinatesTask).ToList();
+        mySubordinates           = (await EmployeeService.GetMySubordinatesAsync(currentUserId)).ToList();
 
         isLoading = false;
     }

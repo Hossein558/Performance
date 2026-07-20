@@ -656,3 +656,29 @@ button { font-family: inherit; }
     border: 1px solid var(--border);
 }
 
+
+/* ═══ AVATAR PHOTO (UNC proxy endpoint) ═════════════════════════════════════ */
+.avatar-wrapper {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+}
+
+.avatar-photo {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    display: block;
+}
+
+.avatar-fallback {
+    width: 34px;
+    height: 34px;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
