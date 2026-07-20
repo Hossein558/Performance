@@ -19,7 +19,7 @@ existing_employees = {row.PersonnelCode: row.Id for row in cursor.fetchall()}
 new_employees = {}
 for index, row in df.iterrows():
     pers_no = str(row.get('Pers.no.', '')).strip()
-    name = str(row.get('Name', '')).strip()
+    name = str(row.get('Name', '')).strip().replace('ي', 'ی').replace('ك', 'ک')
     
     if not pers_no or pers_no == 'nan':
         continue
